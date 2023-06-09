@@ -14,6 +14,6 @@ Warning: This addon only gives stats of the enemy. Obviously this addon will not
 How to use: open the game and find it in the center of your screen, left mouse to drag around. Position resets after each client restart because I don't know how to make it save. If anybody wants to volunteer for that, would be awesome.
 
 This addon is good for:
--tanks that want to know how much damage the mob will do before pull, and build their mitigation-threat balance around it.
--healers that want to know how much dps the mob is doing so they can choose the perfect rank.
--anybody in the open world that wants to pick his battles safely, especially hardcore players.
+- tanks that want to know how much damage the mob will do before pull, and build their mitigation-threat balance around it.
+- healers that want to know how much dps the mob is doing so they can choose the perfect rank.
+- anybody in the open world that wants to pick his battles safely, especially hardcore players.
