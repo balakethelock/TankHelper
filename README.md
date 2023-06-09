@@ -17,3 +17,4 @@ This addon is good for:
 - tanks that want to know how much damage the mob will do before pull, and build their mitigation-threat balance around it.
 - healers that want to know how much dps the mob is doing so they can choose the perfect rank.
 - anybody in the open world that wants to pick his battles safely, especially hardcore players.
+- warriors can disarm the enemy mob and see if their swing damage decreases. This is the best way of testing whether a mob is immune or not, since most of the time the debuff is applied but does nothing.
