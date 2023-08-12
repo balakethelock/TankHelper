@@ -61,9 +61,15 @@ mobstats:SetFont(font, font_size, "OUTLINE");
 function Stats_OnEvent()
 if(UnitCanAttack("player", "target")) then
 
+	local armor = UnitResistance("player", 0)
+	local target_level = UnitLevel("target")
+	local damage_reduction = armor/(armor+400+(85 * target_level))
+
 	--Swing damage
 	lowDmg, hiDmg, offlowDmg, offhiDmg, posBuff, negBuff, percentmod = UnitDamage("target");
-	swingdamage = "|cffFFFFFFSwing:"..floor(lowDmg).."-"..ceil(hiDmg);
+	lowDmg = floor(lowDmg * (1 - damage_reduction))
+	hiDmg = ceil(hiDmg * (1 - damage_reduction))
+	swingdamage = "|cffFFFFFFSwing:"..lowDmg.."-"..hiDmg;
 	duelwield = offlowDmg;
 	swingstring = swingdamage;
 	if (duelwield > 1) then -- warns when a mob is a duel wielder
