@@ -63,7 +63,11 @@ if(UnitCanAttack("player", "target")) then
 
 	local armor = UnitResistance("player", 0)
 	local target_level = UnitLevel("target")
-	local damage_reduction = armor/(armor+400+(85 * target_level))
+	-- formula from https://drive.google.com/file/d/1kxP_TwxaJaNiPm_gMl7ps90_psMnAeka/view
+	local damage_reduction = armor/(armor+400+(85 * (target_level + 4.5* (target_level-59))))
+	if target_level <= 59 then
+		damage_reduction = armor/(armor+400+(85 * target_level))
+	end
 
 	--Swing damage
 	lowDmg, hiDmg, offlowDmg, offhiDmg, posBuff, negBuff, percentmod = UnitDamage("target");
