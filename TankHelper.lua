@@ -57,22 +57,40 @@ mobstats:SetJustifyV("TOP")
 local font, size, flags = GameFontNormal:GetFont();
 mobstats:SetFont(font, font_size, "OUTLINE");
 
+local function reduce_damage_v0(dmg)
+	return dmg
+end
 
-function Stats_OnEvent()
-if(UnitCanAttack("player", "target")) then
-
+local function reduce_damage_v1(dmg)
+	-- formula from https://drive.google.com/file/d/1kxP_TwxaJaNiPm_gMl7ps90_psMnAeka/view
 	local armor = UnitResistance("player", 0)
 	local target_level = UnitLevel("target")
-	-- formula from https://drive.google.com/file/d/1kxP_TwxaJaNiPm_gMl7ps90_psMnAeka/view
 	local damage_reduction = armor/(armor+400+(85 * (target_level + 4.5* (target_level-59))))
 	if target_level <= 59 then
 		damage_reduction = armor/(armor+400+(85 * target_level))
 	end
 
+	return dmg * (1 - damage_reduction)
+end
+
+local function reduce_damage_v2(dmg)
+	-- https://github.com/vmangos/core/blob/b127d3cff26ae4b886904b647776aaa1f6da67d3/src/game/Objects/SpellCaster.cpp#L848
+	local armor = UnitResistance("player", 0)
+	if armor < 0 then armor = 0 end
+	local target_level = UnitLevel("target")
+	local tmpvalue = 0.1 * armor / (8.5 * target_level + 40)
+	tmpvalue = tmpvalue / (1 + tmpvalue)
+	if tmpvalue < 0 then tmpvalue = 0 end
+	if tmpvalue > 0.75 then tmpvalue = 0.75 end
+	return dmg - (dmg * tmpvalue)
+end
+
+function Stats_OnEvent()
+if(UnitCanAttack("player", "target")) then
 	--Swing damage
 	lowDmg, hiDmg, offlowDmg, offhiDmg, posBuff, negBuff, percentmod = UnitDamage("target");
-	lowDmg = floor(lowDmg * (1 - damage_reduction))
-	hiDmg = ceil(hiDmg * (1 - damage_reduction))
+	lowDmg = floor(reduce_damage_v2(lowDmg))
+	hiDmg = ceil(reduce_damage_v2(hiDmg))
 	swingdamage = "|cffFFFFFFSwing:"..lowDmg.."-"..hiDmg;
 	duelwield = offlowDmg;
 	swingstring = swingdamage;
@@ -99,6 +117,12 @@ if(UnitCanAttack("player", "target")) then
 	
 	--Print combined text
 	mobstats:SetText(swingstring.."\n"..apstring.."\n"..speedstring.." | DPS: "..dpscalc);
+	--[[
+	mobstats:SetText(
+		.. lowDmg .. " " .. reduce_damage_v2(lowDmg) .. "\n"
+		.. hiDmg .. " " .. reduce_damage_v2(hiDmg) .. "\n"
+		.. swingstring.."\n"..apstring.."\n"..speedstring.." | DPS: "..dpscalc);
+	]]
 else mobstats:SetText(" "); --if not targeting an enemy mob, print nothing.
 end
 end
