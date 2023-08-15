@@ -26,7 +26,7 @@ local backdrop = {
 	}
 
 -- Frame
-tankhelperframe:SetWidth(160); tankhelperframe:SetHeight(50);
+tankhelperframe:SetWidth(160); tankhelperframe:SetHeight(70);
 tankhelperframe:SetMovable(1); tankhelperframe:EnableMouse(1); tankhelperframe:EnableMouseWheel(1);
 tankhelperframe:SetPoint("CENTER", UIParent, "CENTER", -100, -100);
 tankhelperframe:SetFrameStrata("BACKGROUND")
@@ -85,6 +85,20 @@ local function reduce_damage_v2(dmg)
 	return dmg - (dmg * tmpvalue)
 end
 
+local function crush_damage(dmg)
+	-- crushing blows. 1.5x dmg. 3 or more levels above victim or 15 wepskill more than def skill
+	local crushstring = 'none'
+	if UnitLevel("target") - UnitLevel("player") >= 3 then
+		crushstring = dmg * 1.5
+	end
+	return crushstring
+end
+
+--[[
+TODO
+norma/def/bers stance
+]]
+
 function Stats_OnEvent()
 if(UnitCanAttack("player", "target")) then
 	--Swing damage
@@ -93,10 +107,14 @@ if(UnitCanAttack("player", "target")) then
 	hiDmg = ceil(reduce_damage_v2(hiDmg))
 	swingdamage = "|cffFFFFFFSwing:"..lowDmg.."-"..hiDmg;
 	duelwield = offlowDmg;
-	swingstring = swingdamage;
+	local swingstring = swingdamage;
 	if (duelwield > 1) then -- warns when a mob is a duel wielder
 		swingstring = swingdamage.." |cffFF0000DW!";
 	end
+
+	local critDmg = hiDmg * 2
+	local crushDmg = crush_damage(hiDmg)
+	local critcrushstring = string.format("|cffFFFFFFCrit:%s Crush:%s", critDmg, crushDmg)
 	
 	--Attack power
 	base, buff, debuff = UnitAttackPower("target");
@@ -116,13 +134,11 @@ if(UnitCanAttack("player", "target")) then
 	dpscalc = floor(lowDmg*0.5/mainSpeed + hiDmg*0.5/mainSpeed)
 	
 	--Print combined text
-	mobstats:SetText(swingstring.."\n"..apstring.."\n"..speedstring.." | DPS: "..dpscalc);
-	--[[
 	mobstats:SetText(
-		.. lowDmg .. " " .. reduce_damage_v2(lowDmg) .. "\n"
-		.. hiDmg .. " " .. reduce_damage_v2(hiDmg) .. "\n"
-		.. swingstring.."\n"..apstring.."\n"..speedstring.." | DPS: "..dpscalc);
-	]]
+		swingstring.."\n"
+		..critcrushstring.."\n"
+		..apstring.."\n"
+		..speedstring.." | DPS: "..dpscalc);
 else mobstats:SetText(" "); --if not targeting an enemy mob, print nothing.
 end
 end
